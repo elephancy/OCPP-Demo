@@ -87,8 +87,8 @@ It focuses on the engineering judgment behind reliable OCPP ingestion, async pro
 
 ## Deployment
 
-After a successful `ci-deploy` push workflow on `main`, [the production caller](.github/workflows/deploy-production.yml) delegates the release to the shared gateway at an immutable commit. The caller has only `actions: read`, `contents: read`, and `id-token: write`; its short-lived OIDC identity binds the request to the repository, branch, CI run, and exact source commit.
+The private controller discovers reviewed `main` commits after the required `ci-deploy` workflow succeeds. It independently verifies the repository, branch, exact commit, and CI attempt before publishing immutable images and deploying them.
 
-[The release manifest](.github/hetzner-release.json) defines the reviewed backend, frontend, and simulator image build inputs. The shared gateway publishes the immutable release request, and the private controller independently owns runtime configuration, routing, deployment policy, receipts, and rollback state. No host login, private key, address, or filesystem path belongs in this repository or its GitHub configuration.
+The private controller owns the release configuration, runtime configuration, routing, deployment policy, receipts, and rollback state. This repository keeps the backend, frontend, and simulator Dockerfiles and application CI, without a production caller or duplicate release manifest. No host login, private key, address, or filesystem path belongs in this repository or its GitHub configuration.
 
-[`docker-compose.prod.yml`](docker-compose.prod.yml), [`deploy/.env.example`](deploy/.env.example), and [`deploy/Caddyfile.prod`](deploy/Caddyfile.prod) remain application-level runtime specifications. They are not direct production deployment instructions. Changes to the release caller, manifest, or runtime specifications require production review.
+[`docker-compose.prod.yml`](docker-compose.prod.yml), [`deploy/.env.example`](deploy/.env.example), and [`deploy/Caddyfile.prod`](deploy/Caddyfile.prod) remain application-level runtime specifications. They are not direct production deployment instructions. Changes to the Dockerfiles or runtime specifications require production review.

@@ -1,31 +1,26 @@
-import json
 import re
 from pathlib import Path
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
-GATEWAY_REVISION = "f6319b2dbaf4c1f10230c6425967f34553acd61d"
 
 
-def test_production_release_uses_the_immutable_shared_oidc_caller() -> None:
-    workflow = (REPOSITORY_ROOT / ".github/workflows/deploy-production.yml").read_text()
+def application_workflows() -> str:
+    return "\n".join(path.read_text() for path in sorted(
+        (REPOSITORY_ROOT / ".github/workflows").glob("*.y*ml")))
 
-    assert re.search(r"on:\s*\n\s*workflow_run:", workflow)
-    assert re.search(r'workflows:\s*\["ci-deploy"\]', workflow)
-    assert re.search(r"branches:\s*\[main\]", workflow)
-    assert re.search(r"actions:\s*read", workflow)
-    assert re.search(r"contents:\s*read", workflow)
-    assert re.search(r"id-token:\s*write", workflow)
-    assert (
-        "uses: mahmoudelfeelig/HetznerReleaseGateway/"
-        f".github/workflows/release.yml@{GATEWAY_REVISION}"
-    ) in workflow
-    assert "source_sha: ${{ github.event.workflow_run.head_sha }}" in workflow
-    assert "ci_run_id: ${{ github.event.workflow_run.id }}" in workflow
+
+def test_production_release_authority_is_absent_from_application_workflows() -> None:
+    assert not (REPOSITORY_ROOT / ".github/workflows/deploy-production.yml").exists()
+    assert not (REPOSITORY_ROOT / ".github/hetzner-release.json").exists()
+    workflow = application_workflows()
+    assert "HetznerReleaseGateway/" not in workflow
+    assert "id-token: write" not in workflow
+    assert "secrets: inherit" not in workflow
 
 
 def test_caller_and_docs_expose_no_direct_host_deployment_surface() -> None:
-    workflow = (REPOSITORY_ROOT / ".github/workflows/deploy-production.yml").read_text()
+    workflow = application_workflows()
     readme = (REPOSITORY_ROOT / "README.md").read_text()
 
     assert not re.search(r"\$\{\{\s*secrets\.", workflow, re.IGNORECASE)
@@ -43,19 +38,8 @@ def test_caller_and_docs_expose_no_direct_host_deployment_surface() -> None:
     assert not (REPOSITORY_ROOT / "deploy/Caddyfile.host.example").exists()
 
 
-def test_release_manifest_identifies_only_the_reviewed_ocpp_build_contract() -> None:
-    manifest = json.loads(
-        (REPOSITORY_ROOT / ".github/hetzner-release.json").read_text()
-    )
-
-    assert manifest["version"] == 1
-    assert manifest["id"] == "ocpp"
-    assert manifest["source"] == {
-        "repository": "mahmoudelfeelig/OCPP-Demo",
-        "default_branch": "main",
-        "required_workflows": ["ci-deploy"],
-    }
-    assert manifest["release"]["strategy"] == "source-build"
-    assert [
-        component["name"] for component in manifest["release"]["components"]
-    ] == ["backend", "frontend", "simulator"]
+def test_application_build_inputs_remain_available() -> None:
+    for component in ("backend", "frontend", "simulator"):
+        dockerfile = REPOSITORY_ROOT / component / "Dockerfile"
+        assert dockerfile.is_file()
+        assert re.search(r"^FROM\s+", dockerfile.read_text(), re.MULTILINE)
