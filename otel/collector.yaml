@@ -15,7 +15,8 @@ processors:
 
 exporters:
   logging:
-    verbosity: detailed
+    # Summaries keep collection visible without dumping every span/metric attribute.
+    verbosity: basic
 
 service:
   extensions: [health_check]
