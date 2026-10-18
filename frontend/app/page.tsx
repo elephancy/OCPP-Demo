@@ -269,7 +269,7 @@ const initialState: DashboardState = {
 };
 
 const siteUrl = "https://elfeel.me";
-const repoUrl = "https://github.com/mahmoudelfeelig/OCCP-Demo";
+const repoUrl = "https://github.com/elephancy/OCCP-Demo";
 
 async function requestJson<T = JsonRecord>(path: string, init: RequestInit = {}, token?: string): Promise<T> {
   const headers = new Headers(init.headers);
