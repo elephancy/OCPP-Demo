@@ -26,7 +26,7 @@ jobs:
           cache-dependency-path: backend/requirements*.txt
       - name: Install backend dependencies
         working-directory: backend
-        run: pip install -r requirements-dev.txt pip-audit==2.10.1
+        run: pip install -r requirements-dev.txt -r requirements-audit.txt
       - name: Audit backend runtime and test dependencies
         run: |
           python -m pip list --format=freeze > "$RUNNER_TEMP/audit-requirements.txt"
@@ -48,7 +48,7 @@ jobs:
           cache-dependency-path: simulator/requirements*.txt
       - name: Install simulator dependencies
         working-directory: simulator
-        run: pip install -r requirements-dev.txt pip-audit==2.10.1
+        run: pip install -r requirements-dev.txt -r requirements-audit.txt
       - name: Audit simulator runtime and test dependencies
         run: |
           python -m pip list --format=freeze > "$RUNNER_TEMP/audit-requirements.txt"
