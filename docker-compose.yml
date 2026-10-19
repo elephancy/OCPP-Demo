@@ -27,15 +27,6 @@ services:
       timeout: 5s
       retries: 10
 
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.105.0
-    command: ["--config=/etc/otelcol/config.yaml"]
-    volumes:
-      - ./otel/collector.yaml:/etc/otelcol/config.yaml:ro
-    ports:
-      - "4317:4317"
-      - "4318:4318"
-
   backend:
     build:
       context: ./backend
@@ -49,8 +40,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      otel-collector:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()\""]
       start_period: 60s
