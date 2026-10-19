@@ -11,7 +11,7 @@ from app.core.config import get_settings
 
 def configure_tracing() -> None:
     settings = get_settings()
-    if settings.app_env == "test":
+    if settings.app_env == "test" or not settings.otel_exporter_otlp_endpoint:
         return
     resource = Resource.create(
         {
@@ -21,6 +21,6 @@ def configure_tracing() -> None:
         }
     )
     provider = TracerProvider(resource=resource)
-    exporter = OTLPSpanExporter(endpoint=f"{settings.otel_exporter_otlp_endpoint}/v1/traces")
+    exporter = OTLPSpanExporter(endpoint=f"{settings.otel_exporter_otlp_endpoint.rstrip('/')}/v1/traces")
     provider.add_span_processor(BatchSpanProcessor(exporter))
     trace.set_tracer_provider(provider)

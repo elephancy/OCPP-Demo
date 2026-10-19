@@ -16,7 +16,7 @@ It focuses on the engineering judgment behind reliable OCPP ingestion, async pro
 - Separate frontend and simulator containers
 - Caddy reverse proxy
 - JWT auth with `admin` and `operator` roles
-- JSON logs and OpenTelemetry export to logs/local collector
+- JSON logs and optional OpenTelemetry export using centrally managed Ops policy
 - Per-station bearer-token authentication for OCPP WebSocket connections
 
 ## Repository Layout
@@ -25,7 +25,6 @@ It focuses on the engineering judgment behind reliable OCPP ingestion, async pro
 - `frontend/` - Next.js operations UI
 - `simulator/` - Python simulator process
 - `caddy/` - reverse proxy config
-- `otel/` - local OpenTelemetry collector config
 - `deploy/` - server-only environment templates
 
 ## Local Setup
@@ -35,6 +34,16 @@ It focuses on the engineering judgment behind reliable OCPP ingestion, async pro
    - `make up`
 3. Open the demo through Caddy:
    - `http://localhost:8080`
+
+The development stack runs without a telemetry collector by default. To test
+tracing, obtain the reviewed collector configuration from the private Ops
+repository (`config/telemetry/ocpp-collector.yaml`), set
+`OPS_OTEL_COLLECTOR_CONFIG` to its absolute local path and
+`OTEL_EXPORTER_OTLP_ENDPOINT` to the collector's OTLP HTTP endpoint, then run
+`docker compose -f docker-compose.yml -f docker-compose.telemetry.yml up --build`.
+The endpoint must be reachable from the backend container. Logging verbosity can
+be selected with the standard `LOG_LEVEL` environment variable; an unconfigured
+local run uses Python's WARNING threshold.
 
 ## Useful Commands
 
@@ -61,6 +70,7 @@ It focuses on the engineering judgment behind reliable OCPP ingestion, async pro
 ## Operations Notes
 
 - Production runtime values are held by the private deployment controller. They are never committed or copied into repository-level GitHub secrets.
+- Ops owns production log levels, telemetry endpoints, and the collector configuration. The controller mounts that configuration and injects its settings; this repository retains semantic application events and spans.
 - Local demo data is controlled by `SEED_DEMO_DATA=true` in `.env`. It creates sample sites, stations, messages, and demo accounts for development only.
 - The controller-managed production environment must keep `SEED_DEMO_DATA=false`.
 - Creating the first production admin is an attended runtime operation: provide the bootstrap values through the controller, verify the account, and clear them immediately afterward.
@@ -74,7 +84,7 @@ It focuses on the engineering judgment behind reliable OCPP ingestion, async pro
 - Worker processing is idempotent and outbox-backed. The current handlers mark OCPP messages and partner events processed; downstream webhook fanout, command dispatch, and projection consumers are not implemented.
 - The controls named as simulated start/stop actions write audit events only. They do not call the simulator or send OCPP `RemoteStartTransaction` or `RemoteStopTransaction` commands.
 - `StartTransaction` follows OCPP 1.6 ownership: the charger sends the request without a transaction ID, the central system returns one, and later `MeterValues` and `StopTransaction` requests reuse it.
-- Detailed traces stay in logs or the local collector output, not in the UI.
+- Detailed application spans go to the Ops-configured collector when an exporter endpoint is supplied. Local runs without one do not start an exporter.
 - Demo JWTs are intentionally short-lived operational tokens, not refresh-token sessions. Expired tokens are cleared by the UI and require logging in again.
 - Repository tests that need PostgreSQL use a disposable database URL through `OCPP_POSTGRES_TEST_URL`; do not point that variable at a database you want to keep.
 

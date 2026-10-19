@@ -1,0 +1,20 @@
+# Optional local integration with the collector configuration owned by Ops.
+# Set both variables explicitly; the regular development stack needs neither.
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.105.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - type: bind
+        source: ${OPS_OTEL_COLLECTOR_CONFIG:?Set the path to the Ops collector configuration}
+        target: /etc/otelcol/config.yaml
+        read_only: true
+        bind:
+          create_host_path: false
+
+  backend:
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:?Set the collector OTLP HTTP endpoint}
+    depends_on:
+      otel-collector:
+        condition: service_started
