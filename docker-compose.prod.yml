@@ -27,8 +27,7 @@ services:
     image: otel/opentelemetry-collector-contrib:0.105.0
     restart: unless-stopped
     command: ["--config=/etc/otelcol/config.yaml"]
-    volumes:
-      - ./otel/collector.yaml:/etc/otelcol/config.yaml:ro
+    # Ops supplies the read-only collector config through the runtime overlay.
 
   backend:
     build:
