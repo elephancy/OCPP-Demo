@@ -26,7 +26,11 @@ jobs:
           cache-dependency-path: backend/requirements*.txt
       - name: Install backend dependencies
         working-directory: backend
-        run: pip install -r requirements-dev.txt
+        run: pip install -r requirements-dev.txt -r requirements-audit.txt
+      - name: Audit backend runtime and test dependencies
+        run: |
+          python -m pip list --format=freeze > "$RUNNER_TEMP/audit-requirements.txt"
+          python -m pip_audit --strict --disable-pip --no-deps --vulnerability-service osv -r "$RUNNER_TEMP/audit-requirements.txt"
       - name: Run backend tests
         working-directory: backend
         run: pytest
@@ -44,7 +48,11 @@ jobs:
           cache-dependency-path: simulator/requirements*.txt
       - name: Install simulator dependencies
         working-directory: simulator
-        run: pip install -r requirements-dev.txt
+        run: pip install -r requirements-dev.txt -r requirements-audit.txt
+      - name: Audit simulator runtime and test dependencies
+        run: |
+          python -m pip list --format=freeze > "$RUNNER_TEMP/audit-requirements.txt"
+          python -m pip_audit --strict --disable-pip --no-deps --vulnerability-service osv -r "$RUNNER_TEMP/audit-requirements.txt"
       - name: Run simulator tests
         working-directory: simulator
         run: pytest
@@ -63,6 +71,9 @@ jobs:
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
+      - name: Audit frontend runtime and development dependencies
+        working-directory: frontend
+        run: npm audit --audit-level=low
       - name: Build frontend
         working-directory: frontend
         run: npm run build

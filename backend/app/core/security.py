@@ -5,7 +5,8 @@ import hashlib
 import hmac
 from typing import Any
 
-from jose import JWTError, jwt
+import jwt
+from jwt import InvalidTokenError
 from passlib.context import CryptContext
 
 from app.core.config import get_settings
@@ -59,5 +60,5 @@ def decode_access_token(token: str) -> dict[str, Any]:
 def try_decode_access_token(token: str) -> dict[str, Any] | None:
     try:
         return decode_access_token(token)
-    except JWTError:
+    except InvalidTokenError:
         return None
