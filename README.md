@@ -102,3 +102,10 @@ The private controller discovers reviewed `main` commits after the required `ci-
 The private controller owns the release configuration, runtime configuration, routing, deployment policy, receipts, and rollback state. This repository keeps the backend, frontend, and simulator Dockerfiles and application CI, without a production caller or duplicate release manifest. No host login, private key, address, or filesystem path belongs in this repository or its GitHub configuration.
 
 [`docker-compose.prod.yml`](docker-compose.prod.yml), [`deploy/.env.example`](deploy/.env.example), and [`deploy/Caddyfile.prod`](deploy/Caddyfile.prod) remain application-level runtime specifications. They are not direct production deployment instructions. Changes to the Dockerfiles or runtime specifications require production review.
+
+## Frontend compiler
+
+The frontend uses TypeScript 7 for native route/type checks and Microsoft's
+TypeScript 6 API compatibility package for Next.js build tooling. The npm aliases
+follow the [official side-by-side setup](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-60).
+Run npm --prefix frontend run typecheck before the production build.
