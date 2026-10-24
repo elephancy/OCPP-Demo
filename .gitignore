@@ -40,3 +40,6 @@ logs/
 
 .idea/
 .vscode/
+
+# Generated compiler and browser test caches
+*.tsbuildinfo
