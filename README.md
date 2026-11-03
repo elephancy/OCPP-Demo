@@ -3,6 +3,8 @@
 `ocpp-backend-demo` is a backend lifecycle demo for EV charging operations.
 It focuses on the engineering judgment behind reliable OCPP ingestion, async processing, operational observability, and a product-quality dashboard rather than on billing, roaming, or a full charging platform.
 
+The dashboard sign-in is available at [ocpp.elfeel.me](https://ocpp.elfeel.me/).
+
 ## Scope
 
 - Backend lifecycle demo, not a complete charging platform
