@@ -486,7 +486,7 @@ function ElephantLogo({ className = "" }: { className?: string }) {
   return (
     <Image
       className={`elephant-logo ${className}`}
-      src="/assets/brand/elephant-logo.png"
+      src="/assets/brand/elephant-logo.ico"
       width={256}
       height={256}
       alt="OCPP-Demo elephant logo"

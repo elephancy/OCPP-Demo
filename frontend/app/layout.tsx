@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OCPP-Demo",
-  description: "Operations dashboard for OCPP lifecycle demo",
+  title: "OCPP-Demo | EV Charging Operations Prototype",
+  description: "Sign in to an OCPP 1.6 EV charging operations prototype with station lifecycle events, sessions, and messages.",
   icons: {
     icon: "/assets/brand/elephant-logo.ico",
     shortcut: "/assets/brand/elephant-logo.ico",
