@@ -14,6 +14,10 @@ const nextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
         ],
       },
+      ...["activity", "admin", "sessions", "simulator", "sites"].map((route) => ({
+        source: `/${route}`,
+        headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+      })),
     ];
   },
   async rewrites() {
