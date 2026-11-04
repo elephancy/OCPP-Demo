@@ -14,6 +14,10 @@ const nextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
         ],
       },
+      {
+        source: "/",
+        headers: [{ key: "Link", value: '<https://ocpp.elfeel.me/>; rel="canonical"' }],
+      },
       ...["activity", "admin", "sessions", "simulator", "sites"].map((route) => ({
         source: `/${route}`,
         headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
